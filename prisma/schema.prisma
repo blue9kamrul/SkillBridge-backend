@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,64 +7,144 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
+  id            String   @id @default(uuid())
+  name          String?
+  email         String   @unique
+  emailVerified Boolean?
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  @@unique([email])
-  @@map("user")
+  role UserRole @default(student)
+
+  sessions Session[]
+  accounts Account[]
+
+  tutorProfile TutorProfile?
+  bookings     Booking[]     @relation("StudentBookings")
+  reviews      Review[]      @relation("StudentReviews")
+
+  @@map("users")
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
   expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([token])
-  @@index([userId])
-  @@map("session")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(uuid())
+  userId                String
   accountId             String
   providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
-  idToken               String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
-  password              String?
+  password              String? // For credential-based auth only
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
   @@index([userId])
-  @@map("account")
+  @@map("accounts")
 }
 
 model Verification {
-  id         String   @id
+  id         String   @id @default(uuid())
   identifier String
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@index([identifier])
-  @@map("verification")
+  @@map("verifications")
+}
+
+enum UserRole {
+  student
+  tutor
+  admin
+}
+
+model TutorProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  bio          String
+  subjects     String[]
+  hourlyRate   Decimal
+  experience   Int
+  availability Json?
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories Category[]
+  bookings   Booking[]  @relation("TutorBookings")
+  reviews    Review[]   @relation("TutorReviews")
+
+  @@map("tutor_profiles")
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  tutors TutorProfile[]
+
+  @@map("categories")
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  studentId String
+  tutorId   String
+  startTime DateTime // When the session starts
+  endTime   DateTime // When the session ends
+  status    BookingStatus @default(pending)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  student User         @relation("StudentBookings", fields: [studentId], references: [id])
+  tutor   TutorProfile @relation("TutorBookings", fields: [tutorId], references: [id])
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@index([status])
+  @@index([startTime])
+  @@map("bookings")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  studentId String
+  tutorId   String
+  rating    Int      @db.SmallInt // 1-5 rating (validate in application code)
+  comment   String?
+  createdAt DateTime @default(now())
+
+  student User         @relation("StudentReviews", fields: [studentId], references: [id])
+  tutor   TutorProfile @relation("TutorReviews", fields: [tutorId], references: [id])
+
+  @@index([tutorId])
+  @@map("reviews")
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+  completed
 }
