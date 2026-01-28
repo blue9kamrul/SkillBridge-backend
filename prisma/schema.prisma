@@ -8,14 +8,17 @@ datasource db {
 
 model User {
   id            String   @id @default(uuid())
-  name          String?
+  name          String
   email         String   @unique
-  emailVerified Boolean?
+  emailVerified Boolean  @default(false)
   image         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  role UserRole @default(student)
+  // Custom fields for better-auth
+  role   String  @default("student")
+  phone  String?
+  status String  @default("ACTIVE")
 
   sessions Session[]
   accounts Account[]
@@ -24,14 +27,14 @@ model User {
   bookings     Booking[]     @relation("StudentBookings")
   reviews      Review[]      @relation("StudentReviews")
 
-  @@map("users")
+  @@map("user")
 }
 
 model Session {
   id        String   @id @default(uuid())
   userId    String
-  token     String   @unique
   expiresAt DateTime
+  token     String   @unique
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
@@ -39,7 +42,7 @@ model Session {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
+  @@map("session")
 }
 
 model Account {
@@ -52,7 +55,7 @@ model Account {
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
-  password              String? // For credential-based auth only
+  password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -60,7 +63,7 @@ model Account {
 
   @@unique([providerId, accountId])
   @@index([userId])
-  @@map("accounts")
+  @@map("account")
 }
 
 model Verification {
@@ -71,13 +74,8 @@ model Verification {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@map("verifications")
-}
-
-enum UserRole {
-  student
-  tutor
-  admin
+  @@unique([identifier, value])
+  @@map("verification")
 }
 
 model TutorProfile {
