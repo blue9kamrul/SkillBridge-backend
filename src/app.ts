@@ -5,8 +5,8 @@ import { toNodeHandler } from "better-auth/node";
 import errorHandler from "./middlewares/globalErrorHandler";
 import { notFound } from "./middlewares/notFound";
 
-// Import module routes
 import tutorRoutes from "./modules/tutors/tutor.route";
+import bookingRoutes from "./modules/bookings/booking.route";
 
 const app: Application = express();
 
@@ -27,6 +27,7 @@ app.use("/api/auth", (req, res, next) => {
 });
 
 app.use("/api/tutors", tutorRoutes); // Public & Student routes
+app.use("/api/bookings", bookingRoutes); // Student routes
 
 app.get("/", (req, res) => {
   res.json({
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
     endpoints: {
       auth: "/api/auth/*",
       tutors: "/api/tutors",
+      bookings: "/api/bookings",
     },
   });
 });
