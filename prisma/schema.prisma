@@ -16,7 +16,7 @@ model User {
   updatedAt     DateTime @updatedAt
 
   // Custom fields for better-auth
-  role   String  @default("student")
+  role   String  @default("STUDENT")
   phone  String?
   status String  @default("ACTIVE")
 
