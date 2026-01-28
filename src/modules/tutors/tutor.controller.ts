@@ -166,10 +166,88 @@ const createTutorProfile = async (
   }
 };
 
+// Update tutor profile (tutor or admin)
+const updateTutorProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { bio, subjects, hourlyRate, experience, availability } = req.body;
+
+    const updatedProfile = await tutorService.updateTutorProfile(
+      id as string,
+      userId,
+      userRole as string,
+      {
+        bio,
+        subjects,
+        hourlyRate,
+        experience,
+        availability,
+      },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Tutor profile updated successfully",
+      data: updatedProfile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Delete tutor profile (tutor or admin)
+const deleteTutorProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    await tutorService.deleteTutorProfile(
+      id as string,
+      userId,
+      userRole as string,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Tutor profile deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const TutorController = {
   getAllTutors,
   getAvailableTutors,
   getTutorById,
   getTutorAvailability,
   createTutorProfile,
+  updateTutorProfile,
+  deleteTutorProfile,
 };

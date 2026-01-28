@@ -193,10 +193,89 @@ const createTutorProfile = async (
   });
 };
 
+// Update tutor profile
+const updateTutorProfile = async (
+  tutorId: string,
+  userId: string,
+  userRole: string,
+  data: {
+    bio?: string;
+    subjects?: string[];
+    hourlyRate?: number;
+    experience?: number;
+    availability?: any;
+  },
+) => {
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { id: tutorId },
+  });
+
+  if (!tutor) {
+    throw new Error("Tutor profile not found");
+  }
+
+  // only tutor himself and admin can update the profile
+  if (userRole !== "ADMIN" && tutor.userId !== userId) {
+    throw new Error("You don't have permission to update this tutor profile");
+  }
+
+  const updateData: any = {};
+
+  if (data.bio) updateData.bio = data.bio;
+  if (data.subjects) updateData.subjects = data.subjects;
+  if (data.hourlyRate) updateData.hourlyRate = data.hourlyRate;
+  if (data.experience !== undefined) updateData.experience = data.experience;
+  if (data.availability !== undefined)
+    updateData.availability = data.availability;
+
+  return await prisma.tutorProfile.update({
+    where: { id: tutorId },
+    data: updateData,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
+};
+
+// Delete tutor profile
+const deleteTutorProfile = async (
+  tutorId: string,
+  userId: string,
+  userRole: string,
+) => {
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { id: tutorId },
+  });
+
+  if (!tutor) {
+    throw new Error("Tutor profile not found");
+  }
+
+  if (userRole !== "ADMIN" && tutor.userId !== userId) {
+    throw new Error("You don't have permission to delete this tutor profile");
+  }
+
+  // Delete profile
+  return await prisma.$transaction(async (tx) => {
+    await tx.tutorProfile.delete({
+      where: { id: tutorId },
+    });
+  });
+};
+
 export const tutorService = {
   getAllTutors,
   getAvailableTutors,
   getTutorById,
   getTutorAvailability,
   createTutorProfile,
+  updateTutorProfile,
+  deleteTutorProfile,
 };
