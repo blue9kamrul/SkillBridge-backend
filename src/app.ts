@@ -5,6 +5,9 @@ import { toNodeHandler } from "better-auth/node";
 import errorHandler from "./middlewares/globalErrorHandler";
 import { notFound } from "./middlewares/notFound";
 
+// Import module routes
+import tutorRoutes from "./modules/tutors/tutor.route";
+
 const app: Application = express();
 
 app.use(
@@ -23,14 +26,24 @@ app.use("/api/auth", (req, res, next) => {
   });
 });
 
+app.use("/api/tutors", tutorRoutes); // Public & Student routes
+
 app.get("/", (req, res) => {
-  res.send("Hello, World!");
+  res.json({
+    success: true,
+    message: "SkillBridge API is running",
+    version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth/*",
+      tutors: "/api/tutors",
+    },
+  });
 });
 
 // 404 handler
 app.use(notFound);
 
-// Global error handling middleware 
+// Global error handling middleware
 app.use(errorHandler);
 
 export default app;
