@@ -4,8 +4,8 @@ A backend API for a tutoring platform that connects students with tutors. Built 
 
 ## 🔗 Links
 
-- **Live API**: [Coming Soon]
-- **GitHub Repository**: [Your Repository URL]
+- **Live API**: [Yet to publish]
+- **GitHub Repository**: [Repository URL]
 
 ## ✨ Features
 
@@ -46,98 +46,77 @@ A backend API for a tutoring platform that connects students with tutors. Built 
 
 ```mermaid
 erDiagram
-    User ||--o{ Session : "has many"
-    User ||--o{ Account : "has many"
-    User ||--o| TutorProfile : "has one (if role=tutor)"
-    User ||--o{ Booking : "makes (as student)"
-    User ||--o{ Review : "writes (as student)"
-
-    TutorProfile ||--o{ Booking : "receives"
-    TutorProfile ||--o{ Review : "receives"
+    User ||--o{ Session : has
+    User ||--o{ Account : has
+    User ||--o| TutorProfile : "has one"
+    User ||--o{ Booking : creates
+    User ||--o{ Review : writes
+    TutorProfile ||--o{ Booking : receives
+    TutorProfile ||--o{ Review : receives
     TutorProfile }o--o{ Category : "belongs to"
 
     User {
-        String id PK
-        String name
-        String email
-        Boolean emailVerified "default: false"
-        String image
-        String role "student | tutor | admin"
-        String phone
-        String status "ACTIVE | BANNED"
-        DateTime createdAt
-        DateTime updatedAt
-    }
-
-    Session {
-        String id PK
-        String userId FK
-        DateTime expiresAt
-        String token
-        String ipAddress
-        String userAgent
-        DateTime createdAt
-        DateTime updatedAt
-    }
-
-    Account {
-        String id PK
-        String userId FK
-        String accountId
-        String providerId "google | email"
-        String accessToken
-        String refreshToken
-        DateTime accessTokenExpiresAt
-        DateTime refreshTokenExpiresAt
-        String scope
-        String password
-        DateTime createdAt
-        DateTime updatedAt
-    }
-
-    Verification {
-        String id PK
-        String identifier
-        String value
-        DateTime expiresAt
-        DateTime createdAt
-        DateTime updatedAt
+        string id PK
+        string name
+        string email
+        boolean emailVerified
+        string image
+        string role
+        string phone
+        string status
+        datetime createdAt
+        datetime updatedAt
     }
 
     TutorProfile {
-        String id PK
-        String userId FK
-        String bio
-        String[] subjects
-        Decimal hourlyRate
-        Int experience
-        Json availability
+        string id PK
+        string userId FK
+        string bio
+        string subjects
+        decimal hourlyRate
+        int experience
+        json availability
     }
 
     Category {
-        String id PK
-        String name
-        String description
+        string id PK
+        string name
+        string description
     }
 
     Booking {
-        String id PK
-        String studentId FK
-        String tutorId FK
-        DateTime startTime
-        DateTime endTime
-        Enum status "confirmed | cancelled | completed"
-        DateTime createdAt
-        DateTime updatedAt
+        string id PK
+        string studentId FK
+        string tutorId FK
+        datetime startTime
+        datetime endTime
+        string status
+        datetime createdAt
+        datetime updatedAt
     }
 
     Review {
-        String id PK
-        String studentId FK
-        String tutorId FK
-        Int rating "1-5"
-        String comment
-        DateTime createdAt
+        string id PK
+        string studentId FK
+        string tutorId FK
+        int rating
+        string comment
+        datetime createdAt
+    }
+
+    Session {
+        string id PK
+        string userId FK
+        datetime expiresAt
+        string token
+    }
+
+    Account {
+        string id PK
+        string userId FK
+        string accountId
+        string providerId
+        string password
     }
 ```
 
@@ -237,4 +216,4 @@ Students can only review after completing a session with a tutor. Also made sure
 
 ## 👨‍💻 Author
 
-Your Name - [Your GitHub Profile]
+Your Name - blue9kamrul
