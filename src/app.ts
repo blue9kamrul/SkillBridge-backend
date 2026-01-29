@@ -9,6 +9,7 @@ import tutorRoutes from "./modules/tutors/tutor.route";
 import bookingRoutes from "./modules/bookings/booking.route";
 import authRoutes from "./modules/auth/auth.route";
 import categoryRoutes from "./modules/categories/category.route";
+import reviewRoutes from "./modules/reviews/review.route";
 
 const app: Application = express();
 
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tutors", tutorRoutes); // Public & Student routes
 app.use("/api/bookings", bookingRoutes); // Student routes
 app.use("/api/categories", categoryRoutes); // Public routes
+app.use("/api/reviews", reviewRoutes); // Public & Student routes
 
 app.get("/", (req, res) => {
   res.json({
@@ -45,6 +47,7 @@ app.get("/", (req, res) => {
       tutors: "/api/tutors",
       bookings: "/api/bookings",
       categories: "/api/categories",
+      reviews: "/api/reviews",
     },
   });
 });
