@@ -7,6 +7,8 @@ import { notFound } from "./middlewares/notFound";
 
 import tutorRoutes from "./modules/tutors/tutor.route";
 import bookingRoutes from "./modules/bookings/booking.route";
+import authRoutes from "./modules/auth/auth.route";
+import categoryRoutes from "./modules/categories/category.route";
 
 const app: Application = express();
 
@@ -26,8 +28,12 @@ app.use("/api/auth", (req, res, next) => {
   });
 });
 
+// Custom auth routes
+app.use("/api/auth", authRoutes);
+
 app.use("/api/tutors", tutorRoutes); // Public & Student routes
 app.use("/api/bookings", bookingRoutes); // Student routes
+app.use("/api/categories", categoryRoutes); // Public routes
 
 app.get("/", (req, res) => {
   res.json({
@@ -38,6 +44,7 @@ app.get("/", (req, res) => {
       auth: "/api/auth/*",
       tutors: "/api/tutors",
       bookings: "/api/bookings",
+      categories: "/api/categories",
     },
   });
 });

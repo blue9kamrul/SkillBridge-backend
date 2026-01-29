@@ -12,7 +12,16 @@ router.get("/:id/availability", TutorController.getTutorAvailability);
 
 // Protected routes
 router.post("/become-tutor", auth(), TutorController.createTutorProfile);
-router.put("/:id", auth(UserRole.TUTOR, UserRole.ADMIN), TutorController.updateTutorProfile);
-router.delete("/:id", auth(UserRole.TUTOR, UserRole.ADMIN), TutorController.deleteTutorProfile);
+
+// Tutor's own profile management
+router.put("/profile", auth(UserRole.TUTOR), TutorController.updateMyProfile);
+router.put(
+  "/availability",
+  auth(UserRole.TUTOR),
+  TutorController.updateMyAvailability,
+);
+
+// Admin can delete specific tutor profiles
+router.delete("/:id", auth(UserRole.ADMIN), TutorController.deleteTutorProfile);
 
 export default router;

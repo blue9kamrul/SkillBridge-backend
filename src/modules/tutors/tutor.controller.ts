@@ -166,50 +166,7 @@ const createTutorProfile = async (
   }
 };
 
-// Update tutor profile (tutor or admin)
-const updateTutorProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-    }
-
-    const { bio, subjects, hourlyRate, experience, availability } = req.body;
-
-    const updatedProfile = await tutorService.updateTutorProfile(
-      id as string,
-      userId,
-      userRole as string,
-      {
-        bio,
-        subjects,
-        hourlyRate,
-        experience,
-        availability,
-      },
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Tutor profile updated successfully",
-      data: updatedProfile,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Delete tutor profile (tutor or admin)
+// Delete tutor profile (admin only)
 const deleteTutorProfile = async (
   req: Request,
   res: Response,
@@ -242,12 +199,89 @@ const deleteTutorProfile = async (
   }
 };
 
+// Update tutor's own profile
+const updateMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { bio, subjects, hourlyRate, experience, availability } = req.body;
+
+    const updatedProfile = await tutorService.updateMyProfile(userId, {
+      bio,
+      subjects,
+      hourlyRate,
+      experience,
+      availability,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Tutor profile updated successfully",
+      data: updatedProfile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update tutor's availability only
+const updateMyAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { availability } = req.body;
+
+    if (!availability) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide availability",
+      });
+    }
+
+    const updatedProfile = await tutorService.updateMyAvailability(
+      userId,
+      availability,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Availability updated successfully",
+      data: updatedProfile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const TutorController = {
   getAllTutors,
   getAvailableTutors,
   getTutorById,
   getTutorAvailability,
   createTutorProfile,
-  updateTutorProfile,
+  updateMyProfile,
+  updateMyAvailability,
   deleteTutorProfile,
 };

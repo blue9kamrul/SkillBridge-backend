@@ -244,6 +244,78 @@ const updateTutorProfile = async (
   });
 };
 
+// Update tutor's own profile (for authenticated tutor)
+const updateMyProfile = async (
+  userId: string,
+  data: {
+    bio?: string;
+    subjects?: string[];
+    hourlyRate?: number;
+    experience?: number;
+    availability?: any;
+  },
+) => {
+  // Find tutor profile by userId
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!tutor) {
+    throw new Error("Tutor profile not found");
+  }
+
+  const updateData: any = {};
+
+  if (data.bio) updateData.bio = data.bio;
+  if (data.subjects) updateData.subjects = data.subjects;
+  if (data.hourlyRate) updateData.hourlyRate = data.hourlyRate;
+  if (data.experience !== undefined) updateData.experience = data.experience;
+  if (data.availability !== undefined)
+    updateData.availability = data.availability;
+
+  return await prisma.tutorProfile.update({
+    where: { userId },
+    data: updateData,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
+};
+
+// Update tutor's availability only
+const updateMyAvailability = async (userId: string, availability: any) => {
+  // Find tutor profile by userId
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!tutor) {
+    throw new Error("Tutor profile not found");
+  }
+
+  return await prisma.tutorProfile.update({
+    where: { userId },
+    data: { availability },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
+};
+
 // Delete tutor profile
 const deleteTutorProfile = async (
   tutorId: string,
@@ -276,6 +348,7 @@ export const tutorService = {
   getTutorById,
   getTutorAvailability,
   createTutorProfile,
-  updateTutorProfile,
+  updateMyProfile,
+  updateMyAvailability,
   deleteTutorProfile,
 };
