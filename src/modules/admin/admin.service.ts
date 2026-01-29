@@ -1,0 +1,149 @@
+import { prisma } from "../../lib/prisma";
+
+// Get dashboard statistics
+const getDashboardStats = async () => {
+  const [
+    totalUsers,
+    totalTutors,
+    totalBookings,
+    totalCategories,
+    totalReviews,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.tutorProfile.count(),
+    prisma.booking.count(),
+    prisma.category.count(),
+    prisma.review.count(),
+  ]);
+
+  const [usersByRole, bookingsByStatus, recentBookings] = await Promise.all([
+    prisma.user.groupBy({
+      by: ["role"],
+      _count: {
+        role: true,
+      },
+    }),
+    prisma.booking.groupBy({
+      by: ["status"],
+      _count: {
+        status: true,
+      },
+    }),
+    prisma.booking.findMany({
+      take: 5,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        student: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        tutor: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  return {
+    totals: {
+      users: totalUsers,
+      tutors: totalTutors,
+      bookings: totalBookings,
+      categories: totalCategories,
+      reviews: totalReviews,
+    },
+    usersByRole,
+    bookingsByStatus,
+    recentBookings,
+  };
+};
+
+// Get all users
+const getAllUsers = async () => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      image: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+      tutorProfile: {
+        select: {
+          id: true,
+          bio: true,
+          subjects: true,
+          hourlyRate: true,
+          experience: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return users;
+};
+
+// Update user status (role or other fields)
+const updateUserStatus = async (
+  userId: string,
+  data: { role?: string; emailVerified?: boolean },
+) => {
+  // Validate role if provided
+  if (data.role) {
+    const validRoles = ["STUDENT", "TUTOR", "ADMIN"];
+    if (!validRoles.includes(data.role)) {
+      throw new Error("Invalid role. Must be STUDENT, TUTOR, or ADMIN");
+    }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(data.role && { role: data.role }),
+      ...(data.emailVerified !== undefined && {
+        emailVerified: data.emailVerified,
+      }),
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      image: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedUser;
+};
+
+export const adminService = {
+  getDashboardStats,
+  getAllUsers,
+  updateUserStatus,
+};
