@@ -9,7 +9,7 @@ const getAllTutors = async (
 ) => {
   try {
     // Get from query parameters
-    const { subjects, minRate, maxRate, minExperience } = req.query;
+    const { subjects, minRate, maxRate, minExperience, categoryId } = req.query;
 
     // filter parameters
     const filters: {
@@ -17,6 +17,7 @@ const getAllTutors = async (
       minRate?: number;
       maxRate?: number;
       minExperience?: number;
+      categoryId?: string;
     } = {};
 
     if (subjects) {
@@ -34,8 +35,33 @@ const getAllTutors = async (
     if (minExperience) {
       filters.minExperience = parseInt(minExperience as string);
     }
+    if (categoryId) {
+      filters.categoryId = categoryId as string;
+    }
 
     const tutors = await tutorService.getAllTutors(filters);
+
+    res.status(200).json({
+      success: true,
+      count: tutors.length,
+      data: tutors,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get featured tutors
+const getFeaturedTutors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { limit } = req.query;
+    const tutors = await tutorService.getFeaturedTutors(
+      limit ? parseInt(limit as string) : 6,
+    );
 
     res.status(200).json({
       success: true,
@@ -277,6 +303,7 @@ const updateMyAvailability = async (
 
 export const TutorController = {
   getAllTutors,
+  getFeaturedTutors,
   getAvailableTutors,
   getTutorById,
   getTutorAvailability,

@@ -153,8 +153,7 @@ const updateBookingStatus = async (
 
     const updatedBooking = await bookingService.updateBookingStatus(
       id as string,
-      userId,
-      status,
+      userId,      userRole as string,      status,
     );
 
     res.status(200).json({

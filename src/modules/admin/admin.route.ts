@@ -18,4 +18,10 @@ router.patch(
   AdminController.updateUserStatus,
 );
 
+router.patch(
+  "/users/:id/ban-status",
+  auth(UserRole.ADMIN),
+  AdminController.updateUserBanStatus,
+);
+
 export default router;

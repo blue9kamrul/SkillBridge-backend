@@ -6,11 +6,19 @@ const getAllTutors = async (filters: {
   minRate?: number;
   maxRate?: number;
   minExperience?: number;
+  categoryId?: string;
 }) => {
   const tutors = await prisma.tutorProfile.findMany({
     where: {
       ...(filters.subjects?.length && {
         subjects: { hasSome: filters.subjects },
+      }),
+      ...(filters.categoryId && {
+        categories: {
+          some: {
+            id: filters.categoryId,
+          },
+        },
       }),
     },
     include: {
@@ -48,6 +56,55 @@ const getAllTutors = async (filters: {
   });
 
   return filteredTutors;
+};
+
+// Get featured tutors (top rated with reviews)
+const getFeaturedTutors = async (limit: number = 6) => {
+  const tutors = await prisma.tutorProfile.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          status: true,
+        },
+      },
+      categories: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+    },
+  });
+
+  // Calculate average rating and filter active tutors
+  const tutorsWithRating = tutors
+    .filter(
+      (tutor) => tutor.user.status === "ACTIVE" && tutor.reviews.length > 0,
+    )
+    .map((tutor) => {
+      const avgRating =
+        tutor.reviews.reduce((sum, review) => sum + review.rating, 0) /
+        tutor.reviews.length;
+      return {
+        ...tutor,
+        averageRating: parseFloat(avgRating.toFixed(2)),
+        reviewCount: tutor.reviews.length,
+      };
+    })
+    .sort((a, b) => {
+      // Sort by rating first, then by review count
+      if (b.averageRating !== a.averageRating) {
+        return b.averageRating - a.averageRating;
+      }
+      return b.reviewCount - a.reviewCount;
+    })
+    .slice(0, limit);
+
+  return tutorsWithRating;
 };
 
 // Get all tutors who have availability
@@ -344,6 +401,7 @@ const deleteTutorProfile = async (
 
 export const tutorService = {
   getAllTutors,
+  getFeaturedTutors,
   getAvailableTutors,
   getTutorById,
   getTutorAvailability,

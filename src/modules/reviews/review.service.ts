@@ -23,6 +23,33 @@ const createReview = async (data: CreateReviewInput) => {
     throw new Error("Tutor not found");
   }
 
+  // Check if student has a completed booking with this tutor
+  const completedBooking = await prisma.booking.findFirst({
+    where: {
+      studentId: data.studentId,
+      tutorId: data.tutorId,
+      status: "completed",
+    },
+  });
+
+  if (!completedBooking) {
+    throw new Error(
+      "You can only review tutors after completing a session with them",
+    );
+  }
+
+  // Check if student has already reviewed this tutor
+  const existingReview = await prisma.review.findFirst({
+    where: {
+      studentId: data.studentId,
+      tutorId: data.tutorId,
+    },
+  });
+
+  if (existingReview) {
+    throw new Error("You have already reviewed this tutor");
+  }
+
   // Create the review
   const review = await prisma.review.create({
     data: {

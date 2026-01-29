@@ -207,7 +207,7 @@ const createBooking = async (
       tutorId: data.tutorId,
       startTime: data.startTime,
       endTime: data.endTime,
-      status: "pending",
+      status: "confirmed", // Instant confirmation
     },
     include: {
       tutor: {
@@ -240,6 +240,7 @@ const createBooking = async (
 const updateBookingStatus = async (
   bookingId: string,
   userId: string,
+  userRole: string,
   status: "confirmed" | "cancelled" | "completed",
 ) => {
   const booking = await prisma.booking.findUnique({
@@ -251,6 +252,36 @@ const updateBookingStatus = async (
 
   if (!booking) {
     throw new Error("Booking not found");
+  }
+
+  // Validate status transitions based on user role
+  if (status === "completed") {
+    // Only tutor can mark as completed
+    if (userRole !== "TUTOR") {
+      throw new Error("Only tutors can mark sessions as completed");
+    }
+    const tutorProfile = await prisma.tutorProfile.findUnique({
+      where: { userId },
+    });
+    if (!tutorProfile || booking.tutorId !== tutorProfile.id) {
+      throw new Error("You can only mark your own sessions as completed");
+    }
+    // Can only mark confirmed bookings as completed
+    if (booking.status !== "confirmed") {
+      throw new Error("Only confirmed bookings can be marked as completed");
+    }
+  } else if (status === "cancelled") {
+    // Only student can cancel
+    if (userRole !== "STUDENT") {
+      throw new Error("Only students can cancel bookings");
+    }
+    if (booking.studentId !== userId) {
+      throw new Error("You can only cancel your own bookings");
+    }
+    // Can only cancel confirmed bookings
+    if (booking.status !== "confirmed") {
+      throw new Error("Only confirmed bookings can be cancelled");
+    }
   }
 
   // Update booking status
@@ -303,9 +334,9 @@ const deleteBooking = async (
     throw new Error("You don't have permission to delete this booking");
   }
 
-  // Can only delete pending bookings
-  if (booking.status !== "pending") {
-    throw new Error("Only pending bookings can be deleted");
+  // Can only delete confirmed bookings (changed from pending)
+  if (booking.status !== "confirmed") {
+    throw new Error("Only confirmed bookings can be deleted");
   }
 
   await prisma.booking.delete({

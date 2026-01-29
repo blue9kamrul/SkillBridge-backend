@@ -142,8 +142,43 @@ const updateUserStatus = async (
   return updatedUser;
 };
 
+// Ban or unban a user
+const updateUserBanStatus = async (userId: string, status: string) => {
+  const validStatuses = ["ACTIVE", "BANNED"];
+  if (!validStatuses.includes(status)) {
+    throw new Error("Invalid status. Must be ACTIVE or BANNED");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { status },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      image: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedUser;
+};
+
 export const adminService = {
   getDashboardStats,
   getAllUsers,
   updateUserStatus,
+  updateUserBanStatus,
 };

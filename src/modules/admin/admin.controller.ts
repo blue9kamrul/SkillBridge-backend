@@ -74,8 +74,46 @@ const updateUserStatus = async (
   }
 };
 
+// Ban or unban a user
+const updateUserBanStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || typeof id !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required (ACTIVE or BANNED)",
+      });
+    }
+
+    const user = await adminService.updateUserBanStatus(id, status);
+
+    res.status(200).json({
+      success: true,
+      message: `User ${status === "BANNED" ? "banned" : "activated"} successfully`,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AdminController = {
   getDashboardStats,
   getAllUsers,
   updateUserStatus,
+  updateUserBanStatus,
 };

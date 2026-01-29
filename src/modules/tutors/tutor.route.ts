@@ -6,6 +6,7 @@ const router = Router();
 
 // Public routes
 router.get("/", TutorController.getAllTutors);
+router.get("/featured", TutorController.getFeaturedTutors);
 router.get("/available", TutorController.getAvailableTutors);
 router.get("/:id", TutorController.getTutorById);
 router.get("/:id/availability", TutorController.getTutorAvailability);
