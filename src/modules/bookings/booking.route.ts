@@ -11,7 +11,11 @@ router.post("/", auth(UserRole.STUDENT), BookingController.createBooking);
 router.get("/", auth(), BookingController.getAllBookings);
 router.get("/:id", auth(), BookingController.getBookingById);
 
-router.patch("/:id/status", auth(), BookingController.updateBookingStatus);
+router.patch(
+  "/:id/status",
+  auth(UserRole.TUTOR, UserRole.ADMIN),
+  BookingController.updateBookingStatus,
+);
 
 // admin and student can delete bookings
 router.delete(

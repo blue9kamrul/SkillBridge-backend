@@ -8,6 +8,7 @@ import { notFound } from "./middlewares/notFound";
 import tutorRoutes from "./modules/tutors/tutor.route";
 import bookingRoutes from "./modules/bookings/booking.route";
 import authRoutes from "./modules/auth/auth.route";
+
 import categoryRoutes from "./modules/categories/category.route";
 import reviewRoutes from "./modules/reviews/review.route";
 import adminRoutes from "./modules/admin/admin.route";
@@ -24,15 +25,15 @@ app.use(
 
 app.use(express.json());
 
+// Custom auth routes
+app.use("/api/auth", authRoutes);
+
 // better-auth routes - use middleware instead of route
 app.use("/api/auth", (req, res, next) => {
   return toNodeHandler(auth)(req, res).catch((err) => {
     next(err);
   });
 });
-
-// Custom auth routes
-app.use("/api/auth", authRoutes);
 
 app.use("/api/tutors", tutorRoutes); // Public & Student routes
 app.use("/api/bookings", bookingRoutes); // Student routes

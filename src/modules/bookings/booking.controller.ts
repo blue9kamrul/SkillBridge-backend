@@ -66,7 +66,10 @@ const getBookingById = async (
 
     res.status(200).json({
       success: true,
-      data: booking,
+      data: {
+        ...booking,
+        currentUser: { id: userId, role: userRole },
+      },
     });
   } catch (error) {
     next(error);
@@ -125,6 +128,7 @@ const updateBookingStatus = async (
   try {
     const { id } = req.params;
     const userId = req.user?.id;
+    const userRole = req.user?.role;
     const { status } = req.body;
 
     if (!userId) {

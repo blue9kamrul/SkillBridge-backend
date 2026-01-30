@@ -78,6 +78,7 @@ const getAllUsers = async () => {
       emailVerified: true,
       image: true,
       role: true,
+      status: true,
       createdAt: true,
       updatedAt: true,
       tutorProfile: {

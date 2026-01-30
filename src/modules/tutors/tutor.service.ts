@@ -1,3 +1,36 @@
+// Get tutor profile by userId (for authenticated tutor profile page)
+const getTutorByUserId = async (userId: string) => {
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { userId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          createdAt: true,
+        },
+      },
+      categories: true,
+      reviews: {
+        include: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+  return tutor;
+};
 import { prisma } from "../../lib/prisma";
 
 // Get all tutors with optional filters
@@ -406,6 +439,7 @@ export const tutorService = {
   getTutorById,
   getTutorAvailability,
   createTutorProfile,
+  getTutorByUserId,
   updateMyProfile,
   updateMyAvailability,
   deleteTutorProfile,
