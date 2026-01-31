@@ -5,11 +5,20 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  trustedOrigins: process.env.APP_URL ? [process.env.APP_URL] : [],
+  // Allow multiple trusted origins via TRUSTED_ORIGINS (comma-separated),
+  // fallback to APP_URL, and include localhost in development for local testing.
+  trustedOrigins: (() => {
+    if (process.env.TRUSTED_ORIGINS) {
+      return process.env.TRUSTED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (process.env.APP_URL) return [process.env.APP_URL];
+    if (process.env.NODE_ENV !== "production") return ["http://localhost:3000"];
+    return [];
+  })(),
   session: ({
     cookie: {
       name: "better-auth.session_token",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

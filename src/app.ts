@@ -26,11 +26,7 @@ app.use(
 app.use(express.json());
 
 // Mount custom auth routes at /api/user for /api/user/me
-
 app.use("/api/user", authRoutes);
-
-// TEST ROUTE: Check if /api/auth is being handled
-app.get("/api/auth/test", (req, res) => res.send("auth route works"));
 
 // better-auth routes - use middleware instead of route
 app.use("/api/auth", (req, res, next) => {
