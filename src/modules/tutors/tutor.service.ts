@@ -1,6 +1,6 @@
 // Get tutor profile by userId (for authenticated tutor profile page)
 const getTutorByUserId = async (userId: string) => {
-  const tutor = await prisma.tutorProfile.findUnique({
+  const tutor = await prisma.tutorProfile.findFirst({
     where: { userId },
     include: {
       user: {
@@ -233,7 +233,7 @@ const createTutorProfile = async (
   },
 ) => {
   // Check if user already has a tutor profile
-  const existingProfile = await prisma.tutorProfile.findUnique({
+  const existingProfile = await prisma.tutorProfile.findFirst({
     where: { userId },
   });
 
@@ -283,7 +283,7 @@ const createTutorProfile = async (
   });
 };
 
-// Update tutor profile
+// Update tutor profile by tutorId
 const updateTutorProfile = async (
   tutorId: string,
   userId: string,
@@ -334,8 +334,8 @@ const updateTutorProfile = async (
   });
 };
 
-// Update tutor's own profile (for authenticated tutor)
-const updateMyProfile = async (
+// Update tutor profile by userId
+const updateMyProfileByUserId = async (
   userId: string,
   data: {
     bio?: string;
@@ -346,7 +346,7 @@ const updateMyProfile = async (
   },
 ) => {
   // Find tutor profile by userId
-  const tutor = await prisma.tutorProfile.findUnique({
+  const tutor = await prisma.tutorProfile.findFirst({
     where: { userId },
   });
 
@@ -364,7 +364,7 @@ const updateMyProfile = async (
     updateData.availability = data.availability;
 
   return await prisma.tutorProfile.update({
-    where: { userId },
+    where: { id: tutor.id },
     data: updateData,
     include: {
       user: {
@@ -382,7 +382,7 @@ const updateMyProfile = async (
 // Update tutor's availability only
 const updateMyAvailability = async (userId: string, availability: any) => {
   // Find tutor profile by userId
-  const tutor = await prisma.tutorProfile.findUnique({
+  const tutor = await prisma.tutorProfile.findFirst({
     where: { userId },
   });
 
@@ -391,7 +391,7 @@ const updateMyAvailability = async (userId: string, availability: any) => {
   }
 
   return await prisma.tutorProfile.update({
-    where: { userId },
+    where: { id: tutor.id },
     data: { availability },
     include: {
       user: {
@@ -440,7 +440,8 @@ export const tutorService = {
   getTutorAvailability,
   createTutorProfile,
   getTutorByUserId,
-  updateMyProfile,
+  updateTutorProfile,
+  updateMyProfileByUserId,
   updateMyAvailability,
   deleteTutorProfile,
 };

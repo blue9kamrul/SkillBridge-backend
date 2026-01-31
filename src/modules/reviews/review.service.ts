@@ -1,3 +1,31 @@
+// Get all reviews (admin: all, student: only their own)
+const getAllReviews = async (userId: string, userRole: string) => {
+  let where = {};
+  if (userRole === "ADMIN") {
+    where = {};
+  } else if (userRole === "STUDENT") {
+    where = { studentId: userId };
+  } else if (userRole === "TUTOR") {
+    // Tutor sees reviews they received
+    const tutorProfile = await prisma.tutorProfile.findUnique({
+      where: { userId },
+    });
+    if (!tutorProfile) return [];
+    where = { tutorId: tutorProfile.id };
+  }
+  return prisma.review.findMany({
+    where,
+    include: {
+      student: { select: { id: true, name: true, image: true } },
+      tutor: {
+        include: {
+          user: { select: { id: true, name: true, image: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
 import { prisma } from "../../lib/prisma";
 
 interface CreateReviewInput {
@@ -132,4 +160,5 @@ export const reviewService = {
   createReview,
   getReviewsByTutorId,
   deleteReview,
+  getAllReviews,
 };

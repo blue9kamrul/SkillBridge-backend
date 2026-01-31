@@ -18,6 +18,15 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   trustedOrigins: [process.env.APP_URL!],
+  session: {
+    cookie: {
+      name: "better-auth.session_token",
+      sameSite: "lax",
+      path: "/",
+      httpOnly: true,
+      secure: false, // true if using https
+    },
+  },
   user: {
     additionalFields: {
       role: {
@@ -46,7 +55,6 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     // sendVerificationEmail is not needed when sendOnSignUp is false
   },
-
   socialProviders: {
     google: {
       prompt: "select_account consent",

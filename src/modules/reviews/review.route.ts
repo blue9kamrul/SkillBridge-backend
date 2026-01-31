@@ -3,6 +3,12 @@ import { ReviewController } from "./review.controller";
 import auth, { UserRole } from "../../middlewares/auth";
 
 const router = Router();
+// Get all reviews (admin: all, student: only their own)
+router.get(
+  "/",
+  auth(UserRole.STUDENT, UserRole.ADMIN, UserRole.TUTOR),
+  ReviewController.getAllReviews,
+);
 
 // Only students can create reviews
 router.post("/", auth(UserRole.STUDENT), ReviewController.createReview);

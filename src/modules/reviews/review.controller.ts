@@ -1,3 +1,22 @@
+// Get all reviews (admin: all, student: only their own)
+const getAllReviews = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    const reviews = await reviewService.getAllReviews(userId, userRole);
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 import { Request, Response, NextFunction } from "express";
 import { reviewService } from "./review.service";
 
@@ -39,6 +58,7 @@ const createReview = async (
       data: review,
     });
   } catch (error) {
+    console.error("[ReviewController][createReview] Error:", error);
     next(error);
   }
 };
@@ -115,4 +135,5 @@ export const ReviewController = {
   createReview,
   getReviewsByTutorId,
   deleteReview,
+  getAllReviews,
 };

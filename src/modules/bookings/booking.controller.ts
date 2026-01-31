@@ -205,10 +205,43 @@ const deleteBooking = async (
   }
 };
 
+// Get bookings for authenticated tutor
+const getTutorBookings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    console.log("[getTutorBookings] userId:", userId, "req.user:", req.user);
+    if (!userId) {
+      console.log("[getTutorBookings] No userId found in req.user");
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+    // Get bookings for this tutor by userId
+    const bookings = await bookingService.getBookingsByTutorUserId(
+      userId as string,
+    );
+    console.log("[getTutorBookings] bookings:", bookings);
+    res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    console.error("[getTutorBookings] error:", error);
+    next(error);
+  }
+};
+
 export const BookingController = {
   getAllBookings,
   getBookingById,
   createBooking,
   updateBookingStatus,
   deleteBooking,
+  getTutorBookings,
 };

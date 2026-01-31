@@ -36,7 +36,7 @@ const getAllBookings = async (userId: string, userRole: string) => {
 
   // Tutor sees bookings where they are the tutor
   if (userRole === "TUTOR") {
-    const tutorProfile = await prisma.tutorProfile.findUnique({
+    const tutorProfile = await prisma.tutorProfile.findFirst({
       where: { userId },
     });
 
@@ -155,7 +155,7 @@ const getBookingById = async (
 
   // Tutor can view bookings where they are the tutor
   if (userRole === "TUTOR") {
-    const tutorProfile = await prisma.tutorProfile.findUnique({
+    const tutorProfile = await prisma.tutorProfile.findFirst({
       where: { userId },
     });
 
@@ -260,7 +260,7 @@ const updateBookingStatus = async (
     if (userRole !== "TUTOR") {
       throw new Error("Only tutors can mark sessions as completed");
     }
-    const tutorProfile = await prisma.tutorProfile.findUnique({
+    const tutorProfile = await prisma.tutorProfile.findFirst({
       where: { userId },
     });
     if (!tutorProfile || booking.tutorId !== tutorProfile.id) {
@@ -346,10 +346,86 @@ const deleteBooking = async (
   return true;
 };
 
+// Get tutor profile by userId
+const getTutorProfileByUserId = async (userId: string) => {
+  // Find the first tutor profile for this user
+  return prisma.tutorProfile.findFirst({ where: { userId } });
+};
+
+// Get tutor profile by tutorId
+// const getTutorProfileByTutorId = async (tutorId: string) => {
+//   return prisma.tutorProfile.findUnique({ where: { id: tutorId } });
+// };
+
+// Get bookings by tutorId
+const getBookingsByTutorId = async (tutorId: string) => {
+  return prisma.booking.findMany({
+    where: { tutorId },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      tutor: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { startTime: "desc" },
+  });
+};
+// Get bookings by tutor's userId directly
+const getBookingsByTutorUserId = async (userId: string) => {
+  return prisma.booking.findMany({
+    where: {
+      tutor: {
+        userId,
+      },
+    },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      tutor: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { startTime: "desc" },
+  });
+};
+
 export const bookingService = {
   getAllBookings,
   getBookingById,
   createBooking,
   updateBookingStatus,
   deleteBooking,
+  getBookingsByTutorId,
+  getBookingsByTutorUserId,
 };

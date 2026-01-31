@@ -1,3 +1,32 @@
+// Get authenticated tutor's own profile
+const getMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+    const tutor = await tutorService.getTutorByUserId(userId);
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: "No tutor profile found.",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: tutor,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 import { Request, Response, NextFunction } from "express";
 import { tutorService } from "./tutor.service";
 
@@ -243,7 +272,7 @@ const updateMyProfile = async (
 
     const { bio, subjects, hourlyRate, experience, availability } = req.body;
 
-    const updatedProfile = await tutorService.updateMyProfile(userId, {
+    const updatedProfile = await tutorService.updateMyProfileByUserId(userId, {
       bio,
       subjects,
       hourlyRate,
@@ -311,4 +340,5 @@ export const TutorController = {
   updateMyProfile,
   updateMyAvailability,
   deleteTutorProfile,
+  getMyProfile,
 };
