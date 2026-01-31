@@ -16,12 +16,33 @@ import studentRoutes from "./modules/students/student.route";
 
 const app: Application = express();
 
+// Configure CORS to only allow trusted origins (from env TRUSTED_ORIGINS or APP_URL)
+const trustedOrigins = (() => {
+  if (process.env.TRUSTED_ORIGINS) return process.env.TRUSTED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean);
+  if (process.env.APP_URL) return [process.env.APP_URL];
+  return [];
+})();
+
 app.use(
   cors({
-    origin: true, // Allow all origins for testing (change back later)
+    origin: (origin, cb) => {
+      // allow non-browser requests with no origin
+      if (!origin) return cb(null, true);
+      if (trustedOrigins.length === 0) return cb(null, true);
+      if (trustedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
+
+// Log auth-related requests for debugging origin/cookie issues
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/auth") || req.path === "/api/user/me") {
+    console.log(`[AuthDebug] ${req.method} ${req.path} origin=${req.headers.origin} cookie=${req.headers.cookie}`);
+  }
+  next();
+});
 
 app.use(express.json());
 

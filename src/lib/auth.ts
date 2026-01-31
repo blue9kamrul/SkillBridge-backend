@@ -9,13 +9,15 @@ export const auth = betterAuth({
   // fallback to APP_URL, and include localhost in development for local testing.
   trustedOrigins: (() => {
     if (process.env.TRUSTED_ORIGINS) {
-      return process.env.TRUSTED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean);
+      return process.env.TRUSTED_ORIGINS.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (process.env.APP_URL) return [process.env.APP_URL];
     if (process.env.NODE_ENV !== "production") return ["http://localhost:3000"];
     return [];
   })(),
-  session: ({
+  session: {
     cookie: {
       name: "better-auth.session_token",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -23,7 +25,7 @@ export const auth = betterAuth({
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     },
-  } as unknown) as any,
+  } as unknown as any,
   user: {
     additionalFields: {
       role: {
