@@ -1,6 +1,11 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+
+// Debug: print effective auth cookie config at startup to help verify deployed settings
+const _debugNodeEnv = process.env.NODE_ENV;
+const _debugTrustedOrigins = process.env.TRUSTED_ORIGINS || process.env.APP_URL || (process.env.NODE_ENV !== "production" ? "http://localhost:3000" : "(none)");
+console.log(`[AuthDebug] NODE_ENV=${_debugNodeEnv} TRUSTED_ORIGINS=${_debugTrustedOrigins}`);
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
