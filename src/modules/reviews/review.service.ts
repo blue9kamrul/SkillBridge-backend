@@ -1,12 +1,14 @@
 // Get all reviews (admin: all, student: only their own)
-const getAllReviews = async (userId: string, userRole: string) => {
-  let where = {};
+const getAllReviews = async (userId?: string, userRole?: string) => {
+  let where: any = {};
   if (userRole === "ADMIN") {
     where = {};
   } else if (userRole === "STUDENT") {
+    if (!userId) return [];
     where = { studentId: userId };
   } else if (userRole === "TUTOR") {
     // Tutor sees reviews they received
+    if (!userId) return [];
     const tutorProfile = await prisma.tutorProfile.findUnique({
       where: { userId },
     });
