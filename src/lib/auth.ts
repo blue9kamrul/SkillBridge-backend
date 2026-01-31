@@ -19,11 +19,11 @@ export const auth = betterAuth({
   })(),
   session: {
     cookie: {
-      name: "better-auth.session_token",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      name: "__Secure-better-auth.session_token",
+      sameSite: "none",
       path: "/",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
     },
   } as unknown as any,
   user: {
