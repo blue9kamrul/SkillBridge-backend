@@ -271,8 +271,8 @@ const updateBookingStatus = async (
       throw new Error("Only confirmed bookings can be marked as completed");
     }
   } else if (status === "cancelled") {
-    // Student who created the booking can cancel
-    if (booking.studentId !== userId) {
+    // Student who created the booking or admin can cancel
+    if (userRole !== "ADMIN" && booking.studentId !== userId) {
       throw new Error("You can only cancel your own bookings");
     }
     // Can only cancel confirmed bookings

@@ -135,6 +135,24 @@ const updateUserStatus = async (
     });
   }
 
+  // If changing TO TUTOR from another role, create a default tutor profile
+  if (
+    data.role &&
+    data.role === "TUTOR" &&
+    user.role !== "TUTOR" &&
+    !user.tutorProfile
+  ) {
+    await prisma.tutorProfile.create({
+      data: {
+        userId: userId,
+        bio: "Experienced tutor ready to help students succeed",
+        subjects: ["General"],
+        hourlyRate: 25.0,
+        experience: 1,
+      },
+    });
+  }
+
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {
