@@ -28,6 +28,11 @@ const getCurrentUser = async (userId: string) => {
     },
   });
 
+  // Check if user is banned
+  if (user && user.status === "BANNED") {
+    throw new Error("Your account has been banned. Please contact support.");
+  }
+
   return user;
 };
 

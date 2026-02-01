@@ -51,13 +51,12 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    autoSignIn: false,
-    requireEmailVerification: false, // Set to false for development - users auto-verified
+    autoSignIn: true, // Auto sign-in after successful signup
+    requireEmailVerification: false, // Set to false - users auto-verified
   },
   emailVerification: {
     sendOnSignUp: false, // Do not send verification email on signup
     autoSignInAfterVerification: true,
-    // sendVerificationEmail is not needed when sendOnSignUp is false
   },
   socialProviders: {
     google: {

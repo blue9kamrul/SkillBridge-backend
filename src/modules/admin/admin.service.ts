@@ -114,10 +114,20 @@ const updateUserStatus = async (
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: {
+      tutorProfile: true,
+    },
   });
 
   if (!user) {
     throw new Error("User not found");
+  }
+
+  // If changing from TUTOR to another role, delete the tutor profile
+  if (data.role && user.role === "TUTOR" && data.role !== "TUTOR" && user.tutorProfile) {
+    await prisma.tutorProfile.delete({
+      where: { userId: userId },
+    });
   }
 
   const updatedUser = await prisma.user.update({

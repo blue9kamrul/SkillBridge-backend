@@ -31,6 +31,13 @@ const getCurrentUser = async (
       data: user,
     });
   } catch (error) {
+    // Handle banned user error specifically
+    if (error instanceof Error && error.message.includes("banned")) {
+      return res.status(403).json({
+        success: false,
+        message: error.message,
+      });
+    }
     next(error);
   }
 };
