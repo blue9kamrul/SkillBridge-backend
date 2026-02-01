@@ -4,12 +4,19 @@ import { prisma } from "./prisma";
 
 // Debug: print effective auth cookie config at startup to help verify deployed settings
 const _debugNodeEnv = process.env.NODE_ENV;
-const _debugTrustedOrigins = process.env.TRUSTED_ORIGINS || process.env.APP_URL || (process.env.NODE_ENV !== "production" ? "http://localhost:3000" : "(none)");
-console.log(`[AuthDebug] NODE_ENV=${_debugNodeEnv} TRUSTED_ORIGINS=${_debugTrustedOrigins}`);
+const _debugTrustedOrigins =
+  process.env.TRUSTED_ORIGINS ||
+  process.env.APP_URL ||
+  (process.env.NODE_ENV !== "production" ? "http://localhost:3000" : "(none)");
+console.log(
+  `[AuthDebug] NODE_ENV=${_debugNodeEnv} TRUSTED_ORIGINS=${_debugTrustedOrigins}`,
+);
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   // Allow multiple trusted origins via TRUSTED_ORIGINS (comma-separated),
   // fallback to APP_URL, and include localhost in development for local testing.
   trustedOrigins: (() => {
@@ -64,6 +71,7 @@ export const auth = betterAuth({
       accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      redirectURI: `${process.env.BETTER_AUTH_URL || "http://localhost:5000"}/api/auth/callback/google`,
     },
   },
 });

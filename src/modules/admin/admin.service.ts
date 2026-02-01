@@ -124,7 +124,12 @@ const updateUserStatus = async (
   }
 
   // If changing from TUTOR to another role, delete the tutor profile
-  if (data.role && user.role === "TUTOR" && data.role !== "TUTOR" && user.tutorProfile) {
+  if (
+    data.role &&
+    user.role === "TUTOR" &&
+    data.role !== "TUTOR" &&
+    user.tutorProfile
+  ) {
     await prisma.tutorProfile.delete({
       where: { userId: userId },
     });
