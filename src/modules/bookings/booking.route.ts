@@ -18,7 +18,7 @@ router.get("/tutor", auth(UserRole.TUTOR), BookingController.getTutorBookings);
 
 router.patch(
   "/:id/status",
-  auth(UserRole.TUTOR, UserRole.ADMIN),
+  auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN),
   BookingController.updateBookingStatus,
 );
 

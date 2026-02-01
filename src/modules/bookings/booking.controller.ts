@@ -167,7 +167,21 @@ const updateBookingStatus = async (
       message: "Booking status updated successfully",
       data: updatedBooking,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("[BookingController][updateBookingStatus] Error:", error);
+    // Handle validation errors with 400 status
+    if (
+      error.message &&
+      (error.message.includes("not found") ||
+        error.message.includes("Only") ||
+        error.message.includes("can only") ||
+        error.message.includes("Cannot"))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
     next(error);
   }
 };

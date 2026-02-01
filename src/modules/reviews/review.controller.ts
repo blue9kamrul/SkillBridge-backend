@@ -57,8 +57,21 @@ const createReview = async (
       message: "Review created successfully",
       data: review,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[ReviewController][createReview] Error:", error);
+    // Handle validation errors with 400 status
+    if (
+      error.message &&
+      (error.message.includes("Rating must be") ||
+        error.message.includes("not found") ||
+        error.message.includes("can only review") ||
+        error.message.includes("already reviewed"))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
     next(error);
   }
 };
