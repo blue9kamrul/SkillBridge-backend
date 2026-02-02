@@ -200,18 +200,18 @@ const createTutorProfile = async (
     const { bio, subjects, hourlyRate, experience, availability, categoryIds } =
       req.body;
 
-    // Validation
-    if (!bio || !subjects || !hourlyRate || experience === undefined) {
+    // Validation - subjects is now optional (using categories instead)
+    if (!bio || !hourlyRate || experience === undefined) {
       return res.status(400).json({
         success: false,
         message:
-          "Please provide all required fields: bio, subjects, hourlyRate, experience",
+          "Please provide all required fields: bio, hourlyRate, experience",
       });
     }
 
     const tutorProfile = await tutorService.createTutorProfile(userId, {
       bio,
-      subjects,
+      subjects: subjects || [], // Default to empty array if not provided
       hourlyRate,
       experience,
       availability,

@@ -39,7 +39,10 @@ export const auth = betterAuth({
         process.env.NODE_ENV === "production"
           ? "__Secure-better-auth.session_token"
           : "better-auth.session_token",
-      sameSite: "lax" as const, // Changed from 'none' - with Next.js proxy, cookies are now same-site
+      // Use Lax for same-site (proxy) or None for cross-site
+      // If using Next.js proxy (recommended), use Lax for better security
+      // If calling backend directly from different domain, use None
+      sameSite: "none" as const, // Changed back to 'none' for OAuth compatibility
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

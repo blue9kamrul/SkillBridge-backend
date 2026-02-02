@@ -68,31 +68,8 @@ app.use(express.json());
 // Mount custom auth routes at /api/user for /api/user/me
 app.use("/api/user", authRoutes);
 
-// better-auth routes - use middleware instead of route
+// better-auth routes - let Better Auth handle cookies (SameSite=Lax for proxy)
 app.use("/api/auth", (req, res, next) => {
-  // Intercept res.setHeader to force SameSite=None; Secure on all Set-Cookie headers
-  const origSetHeader = res.setHeader.bind(res);
-  res.setHeader = function (name: string, value: any) {
-    if (String(name).toLowerCase() === "set-cookie") {
-      const cookies = Array.isArray(value) ? value : [String(value)];
-      const rewritten = cookies.map((c: string) => {
-        let cookie = String(c);
-        // Remove any existing SameSite directive
-        cookie = cookie.replace(/;\s*SameSite=[^;]*/gi, "");
-        // Ensure Secure is present
-        if (!/;\s*Secure/i.test(cookie)) cookie += "; Secure";
-        // Add SameSite=None
-        cookie += "; SameSite=None";
-        return cookie;
-      });
-      console.log(
-        `[AuthDebug] Set-Cookie rewritten to: ${JSON.stringify(rewritten)}`,
-      );
-      return origSetHeader.call(this, name, rewritten);
-    }
-    return origSetHeader.call(this, name, value);
-  };
-
   return toNodeHandler(auth)(req, res).catch((err) => {
     next(err);
   });
