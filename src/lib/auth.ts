@@ -42,6 +42,7 @@ export const auth = betterAuth({
       path: "/",
       httpOnly: true,
       secure: true,
+      domain: undefined, // Let browser handle domain automatically
     },
   } as unknown as any,
   user: {
