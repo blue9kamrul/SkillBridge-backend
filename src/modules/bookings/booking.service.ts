@@ -235,49 +235,66 @@ const createBooking = async (
 
   if (existingBookings.length > 0) {
     const conflict = existingBookings[0]!;
-    const startDate = conflict.startTime instanceof Date ? conflict.startTime : new Date(conflict.startTime);
-    const endDate = conflict.endTime instanceof Date ? conflict.endTime : new Date(conflict.endTime);
-    
-    const conflictStart = startDate.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    const startDate =
+      conflict.startTime instanceof Date
+        ? conflict.startTime
+        : new Date(conflict.startTime);
+    const endDate =
+      conflict.endTime instanceof Date
+        ? conflict.endTime
+        : new Date(conflict.endTime);
+
+    const conflictStart = startDate.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
-    const conflictEnd = endDate.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    const conflictEnd = endDate.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
-    
+
     throw new Error(
-      `This tutor is already booked from ${conflictStart} to ${conflictEnd}. Please choose a different time slot.`
+      `This tutor is already booked from ${conflictStart} to ${conflictEnd}. Please choose a different time slot.`,
     );
   }
 
   // Validate against tutor availability if set
-  if (tutor.availability && typeof tutor.availability === 'string' && tutor.availability.trim()) {
-    const bookingDay = data.startTime.toLocaleDateString('en-US', { weekday: 'short' });
+  if (
+    tutor.availability &&
+    typeof tutor.availability === "string" &&
+    tutor.availability.trim()
+  ) {
+    const bookingDay = data.startTime.toLocaleDateString("en-US", {
+      weekday: "short",
+    });
     const bookingHour = data.startTime.getHours();
     const availabilityText = tutor.availability.toLowerCase();
-    
+
     // Simple validation: check if booking is on weekend (Friday/Saturday) when availability doesn't mention weekends
-    const isWeekend = bookingDay === 'Fri' || bookingDay === 'Sat';
-    const hasWeekendAvailability = availabilityText.includes('weekend') || 
-                                   availabilityText.includes('friday') || 
-                                   availabilityText.includes('saturday') ||
-                                   availabilityText.includes('fri') ||
-                                   availabilityText.includes('sat');
-    
+    const isWeekend = bookingDay === "Fri" || bookingDay === "Sat";
+    const hasWeekendAvailability =
+      availabilityText.includes("weekend") ||
+      availabilityText.includes("friday") ||
+      availabilityText.includes("saturday") ||
+      availabilityText.includes("fri") ||
+      availabilityText.includes("sat");
+
     if (isWeekend && !hasWeekendAvailability) {
-      throw new Error(`This tutor is not available on weekends (Friday/Saturday). Available slots: ${tutor.availability}`);
+      throw new Error(
+        `This tutor is not available on weekends (Friday/Saturday). Available slots: ${tutor.availability}`,
+      );
     }
-    
+
     // Check if booking is during typical off hours (before 6 AM or after 10 PM)
     if (bookingHour < 6 || bookingHour >= 22) {
-      throw new Error(`Booking time is outside typical tutoring hours. Tutor availability: ${tutor.availability}`);
+      throw new Error(
+        `Booking time is outside typical tutoring hours. Tutor availability: ${tutor.availability}`,
+      );
     }
   }
 

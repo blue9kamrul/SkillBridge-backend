@@ -31,6 +31,7 @@ export const auth = betterAuth({
   })(),
   advanced: {
     useSecureCookies: true,
+    redirectOnLogin: process.env.APP_URL || "http://localhost:3000",
   },
   session: {
     cookie: {
@@ -39,7 +40,10 @@ export const auth = betterAuth({
       path: "/",
       httpOnly: true,
       secure: true,
+      domain: process.env.NODE_ENV === "production" ? undefined : undefined,
     },
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
   } as unknown as any,
   user: {
     additionalFields: {

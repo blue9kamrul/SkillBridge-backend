@@ -40,6 +40,7 @@ const getAllTutors = async (filters: {
   maxRate?: number;
   minExperience?: number;
   categoryId?: string;
+  minRating?: number;
 }) => {
   const tutors = await prisma.tutorProfile.findMany({
     where: {
@@ -85,6 +86,15 @@ const getAllTutors = async (filters: {
       return false;
     if (filters.minExperience && tutor.experience < filters.minExperience)
       return false;
+
+    // Filter by minimum rating
+    if (filters.minRating && tutor.reviews.length > 0) {
+      const avgRating =
+        tutor.reviews.reduce((sum, r) => sum + r.rating, 0) /
+        tutor.reviews.length;
+      if (avgRating < filters.minRating) return false;
+    }
+
     return true;
   });
 
@@ -230,6 +240,7 @@ const createTutorProfile = async (
     hourlyRate: number;
     experience: number;
     availability?: any;
+    categoryIds?: string[];
   },
 ) => {
   // Check if user already has a tutor profile
@@ -260,6 +271,12 @@ const createTutorProfile = async (
         hourlyRate: data.hourlyRate,
         experience: data.experience,
         availability: data.availability || null,
+        ...(data.categoryIds &&
+          data.categoryIds.length > 0 && {
+            categories: {
+              connect: data.categoryIds.map((id) => ({ id })),
+            },
+          }),
       },
       include: {
         user: {
@@ -270,6 +287,7 @@ const createTutorProfile = async (
             image: true,
           },
         },
+        categories: true,
       },
     });
 
@@ -343,6 +361,7 @@ const updateMyProfileByUserId = async (
     hourlyRate?: number;
     experience?: number;
     availability?: any;
+    categoryIds?: string[];
   },
 ) => {
   // Find tutor profile by userId
@@ -363,6 +382,24 @@ const updateMyProfileByUserId = async (
   if (data.availability !== undefined)
     updateData.availability = data.availability;
 
+  // Handle category updates
+  if (data.categoryIds !== undefined) {
+    // Disconnect all existing categories and connect new ones
+    const currentTutor = await prisma.tutorProfile.findUnique({
+      where: { id: tutor.id },
+      include: { categories: true },
+    });
+
+    if (currentTutor) {
+      updateData.categories = {
+        disconnect: currentTutor.categories.map((c) => ({ id: c.id })),
+        ...(data.categoryIds.length > 0 && {
+          connect: data.categoryIds.map((id) => ({ id })),
+        }),
+      };
+    }
+  }
+
   return await prisma.tutorProfile.update({
     where: { id: tutor.id },
     data: updateData,
@@ -375,6 +412,7 @@ const updateMyProfileByUserId = async (
           image: true,
         },
       },
+      categories: true,
     },
   });
 };

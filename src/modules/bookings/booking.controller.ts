@@ -259,16 +259,18 @@ const getBookingsByTutorId = async (
 ) => {
   try {
     const { tutorId } = req.params;
-    
+
     if (!tutorId) {
       return res.status(400).json({
         success: false,
         message: "Tutor ID is required",
       });
     }
-    
-    const bookings = await bookingService.getBookingsByTutorId(tutorId as string);
-    
+
+    const bookings = await bookingService.getBookingsByTutorId(
+      tutorId as string,
+    );
+
     res.status(200).json({
       success: true,
       count: bookings.length,

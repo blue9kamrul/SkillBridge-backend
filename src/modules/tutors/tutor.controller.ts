@@ -38,7 +38,8 @@ const getAllTutors = async (
 ) => {
   try {
     // Get from query parameters
-    const { subjects, minRate, maxRate, minExperience, categoryId } = req.query;
+    const { subjects, minRate, maxRate, minExperience, categoryId, minRating } =
+      req.query;
 
     // filter parameters
     const filters: {
@@ -47,6 +48,7 @@ const getAllTutors = async (
       maxRate?: number;
       minExperience?: number;
       categoryId?: string;
+      minRating?: number;
     } = {};
 
     if (subjects) {
@@ -66,6 +68,9 @@ const getAllTutors = async (
     }
     if (categoryId) {
       filters.categoryId = categoryId as string;
+    }
+    if (minRating) {
+      filters.minRating = parseFloat(minRating as string);
     }
 
     const tutors = await tutorService.getAllTutors(filters);
@@ -192,7 +197,8 @@ const createTutorProfile = async (
       });
     }
 
-    const { bio, subjects, hourlyRate, experience, availability } = req.body;
+    const { bio, subjects, hourlyRate, experience, availability, categoryIds } =
+      req.body;
 
     // Validation
     if (!bio || !subjects || !hourlyRate || experience === undefined) {
@@ -209,6 +215,7 @@ const createTutorProfile = async (
       hourlyRate,
       experience,
       availability,
+      categoryIds,
     });
 
     res.status(201).json({
@@ -270,7 +277,8 @@ const updateMyProfile = async (
       });
     }
 
-    const { bio, subjects, hourlyRate, experience, availability } = req.body;
+    const { bio, subjects, hourlyRate, experience, availability, categoryIds } =
+      req.body;
 
     const updatedProfile = await tutorService.updateMyProfileByUserId(userId, {
       bio,
@@ -278,6 +286,7 @@ const updateMyProfile = async (
       hourlyRate,
       experience,
       availability,
+      categoryIds,
     });
 
     res.status(200).json({
