@@ -41,6 +41,24 @@ const getCurrentUser = async (userId: string) => {
   return user;
 };
 
+// Update user's phone number
+const updatePhone = async (userId: string, phone: string) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { phone },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+    },
+  });
+
+  return user;
+};
+
 export const authService = {
   getCurrentUser,
+  updatePhone,
 };

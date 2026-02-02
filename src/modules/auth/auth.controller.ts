@@ -42,6 +42,38 @@ const getCurrentUser = async (
   }
 };
 
+const updatePhone = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    const { phone } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is required",
+      });
+    }
+
+    const user = await authService.updatePhone(userId, phone);
+
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: "Phone number updated successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AuthController = {
   getCurrentUser,
+  updatePhone,
 };
