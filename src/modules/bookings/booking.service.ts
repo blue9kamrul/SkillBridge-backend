@@ -200,6 +200,87 @@ const createBooking = async (
     throw new Error("Booking must be in the future");
   }
 
+  // Check for existing bookings that overlap with the requested time
+  const existingBookings = await prisma.booking.findMany({
+    where: {
+      tutorId: data.tutorId,
+      status: {
+        in: ["confirmed", "pending"],
+      },
+      OR: [
+        {
+          // New booking starts during an existing booking
+          AND: [
+            { startTime: { lte: data.startTime } },
+            { endTime: { gt: data.startTime } },
+          ],
+        },
+        {
+          // New booking ends during an existing booking
+          AND: [
+            { startTime: { lt: data.endTime } },
+            { endTime: { gte: data.endTime } },
+          ],
+        },
+        {
+          // New booking completely contains an existing booking
+          AND: [
+            { startTime: { gte: data.startTime } },
+            { endTime: { lte: data.endTime } },
+          ],
+        },
+      ],
+    },
+  });
+
+  if (existingBookings.length > 0) {
+    const conflict = existingBookings[0]!;
+    const startDate = conflict.startTime instanceof Date ? conflict.startTime : new Date(conflict.startTime);
+    const endDate = conflict.endTime instanceof Date ? conflict.endTime : new Date(conflict.endTime);
+    
+    const conflictStart = startDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    const conflictEnd = endDate.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    throw new Error(
+      `This tutor is already booked from ${conflictStart} to ${conflictEnd}. Please choose a different time slot.`
+    );
+  }
+
+  // Validate against tutor availability if set
+  if (tutor.availability && typeof tutor.availability === 'string' && tutor.availability.trim()) {
+    const bookingDay = data.startTime.toLocaleDateString('en-US', { weekday: 'short' });
+    const bookingHour = data.startTime.getHours();
+    const availabilityText = tutor.availability.toLowerCase();
+    
+    // Simple validation: check if booking is on weekend when availability doesn't mention weekends
+    const isWeekend = bookingDay === 'Sat' || bookingDay === 'Sun';
+    const hasWeekendAvailability = availabilityText.includes('weekend') || 
+                                   availabilityText.includes('saturday') || 
+                                   availabilityText.includes('sunday') ||
+                                   availabilityText.includes('sat') ||
+                                   availabilityText.includes('sun');
+    
+    if (isWeekend && !hasWeekendAvailability) {
+      throw new Error(`This tutor is not available on weekends. Available slots: ${tutor.availability}`);
+    }
+    
+    // Check if booking is during typical off hours (before 6 AM or after 10 PM)
+    if (bookingHour < 6 || bookingHour >= 22) {
+      throw new Error(`Booking time is outside typical tutoring hours. Tutor availability: ${tutor.availability}`);
+    }
+  }
+
   // Create booking
   const booking = await prisma.booking.create({
     data: {

@@ -29,6 +29,12 @@ export const auth = betterAuth({
     if (process.env.NODE_ENV !== "production") return ["http://localhost:3000"];
     return [];
   })(),
+  advanced: {
+    useSecureCookies: true,
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
   session: {
     cookie: {
       name: "__Secure-better-auth.session_token",

@@ -15,6 +15,12 @@ router.get("/:id/availability", TutorController.getTutorAvailability);
 router.post("/become-tutor", auth(), TutorController.createTutorProfile);
 
 // Tutor's own profile management
+router.patch(
+  "/profile",
+  auth(UserRole.TUTOR),
+  TutorController.updateMyProfile,
+);
+
 router.put(
   "/availability",
   auth(UserRole.TUTOR),

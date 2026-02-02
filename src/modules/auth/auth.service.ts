@@ -23,6 +23,11 @@ const getCurrentUser = async (userId: string) => {
           hourlyRate: true,
           experience: true,
           availability: true,
+          reviews: {
+            select: {
+              rating: true,
+            },
+          },
         },
       },
     },

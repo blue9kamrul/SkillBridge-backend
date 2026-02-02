@@ -440,7 +440,7 @@ export const tutorService = {
   getTutorAvailability,
   createTutorProfile,
   getTutorByUserId,
-  updateTutorProfile,
+  updateTutorProfile: updateMyProfileByUserId,
   updateMyProfileByUserId,
   updateMyAvailability,
   deleteTutorProfile,

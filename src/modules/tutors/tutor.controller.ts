@@ -221,6 +221,41 @@ const createTutorProfile = async (
   }
 };
 
+// Update authenticated tutor's own profile
+const updateMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { bio, subjects, hourlyRate, experience, availability } = req.body;
+
+    const updatedProfile = await tutorService.updateTutorProfile(userId, {
+      bio,
+      subjects,
+      hourlyRate,
+      experience,
+      availability,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedProfile,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Delete tutor profile (admin only)
 const deleteTutorProfile = async (
   req: Request,
