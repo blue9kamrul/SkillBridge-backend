@@ -35,11 +35,11 @@ export const auth = betterAuth({
   },
   session: {
     cookie: {
-      name: "__Secure-better-auth.session_token",
-      sameSite: "none" as const,
+      name: process.env.NODE_ENV === "production" ? "__Secure-better-auth.session_token" : "better-auth.session_token",
+      sameSite: "lax" as const, // Changed from 'none' - with Next.js proxy, cookies are now same-site
       path: "/",
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       // Don't set domain - let it default to the current domain
     },
     expiresIn: 60 * 60 * 24 * 7, // 7 days
