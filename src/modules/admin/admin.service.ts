@@ -138,7 +138,7 @@ const updateUserStatus = async (
 
     if (bookingsCount > 0 || reviewsCount > 0) {
       throw new Error(
-        `Cannot change role from TUTOR to ${data.role}. This tutor has ${bookingsCount} booking(s) and ${reviewsCount} review(s). Please delete or reassign them first.`
+        `Cannot change role from TUTOR to ${data.role}. This tutor has ${bookingsCount} booking(s) and ${reviewsCount} review(s). Please delete or reassign them first.`,
       );
     }
 

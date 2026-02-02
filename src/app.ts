@@ -45,17 +45,26 @@ app.use((req, res, next) => {
     console.log(
       `[AuthDebug] ${req.method} ${req.path} origin=${req.headers.origin} cookie=${req.headers.cookie}`,
     );
-    
+
     // Handle duplicate session tokens by keeping only the last one
     if (req.headers.cookie) {
-      const cookies = req.headers.cookie.split(';').map(c => c.trim());
-      const sessionCookies = cookies.filter(c => c.startsWith('__Secure-better-auth.session_token='));
-      
+      const cookies = req.headers.cookie.split(";").map((c) => c.trim());
+      const sessionCookies = cookies.filter((c) =>
+        c.startsWith("__Secure-better-auth.session_token="),
+      );
+
       if (sessionCookies.length > 1) {
-        console.log(`[AuthDebug] Found ${sessionCookies.length} session tokens, using the last one`);
+        console.log(
+          `[AuthDebug] Found ${sessionCookies.length} session tokens, using the last one`,
+        );
         // Remove duplicate session tokens, keep only the last one
-        const otherCookies = cookies.filter(c => !c.startsWith('__Secure-better-auth.session_token='));
-        req.headers.cookie = [...otherCookies, sessionCookies[sessionCookies.length - 1]].join('; ');
+        const otherCookies = cookies.filter(
+          (c) => !c.startsWith("__Secure-better-auth.session_token="),
+        );
+        req.headers.cookie = [
+          ...otherCookies,
+          sessionCookies[sessionCookies.length - 1],
+        ].join("; ");
         console.log(`[AuthDebug] Cleaned cookie header: ${req.headers.cookie}`);
       }
     }

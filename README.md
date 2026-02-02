@@ -4,7 +4,8 @@ A backend API for a tutoring platform that connects students with tutors. Built 
 
 ## 🔗 Links
 
-- **Live API**: [Yet to publish]
+- **Live API**: [https://skillbridge-backend-evdp.onrender.com](https://skillbridge-backend-evdp.onrender.com)
+- **Frontend Application**: [https://skillbridge-frontend-phi.vercel.app](https://skillbridge-frontend-phi.vercel.app)
 - **GitHub Repository**: [Repository URL]
 
 ## ✨ Features
@@ -144,7 +145,14 @@ erDiagram
    DATABASE_URL="postgresql://username:password@localhost:5432/skillbridge"
    BETTER_AUTH_SECRET="your-secret-key"
    BETTER_AUTH_URL="http://localhost:5000"
+   TRUSTED_ORIGINS="http://localhost:3000"
    PORT=5000
+   NODE_ENV="development"
+   
+   # For production (Render):
+   # BETTER_AUTH_URL="https://skillbridge-backend-evdp.onrender.com"
+   # TRUSTED_ORIGINS="https://skillbridge-frontend-phi.vercel.app"
+   # NODE_ENV="production"
    ```
 
 3. **Setup database**
