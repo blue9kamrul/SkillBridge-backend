@@ -130,6 +130,19 @@ const updateUserStatus = async (
     data.role !== "TUTOR" &&
     user.tutorProfile
   ) {
+    // Check if tutor has any bookings or reviews
+    const [bookingsCount, reviewsCount] = await Promise.all([
+      prisma.booking.count({ where: { tutorId: user.tutorProfile.id } }),
+      prisma.review.count({ where: { tutorId: user.tutorProfile.id } }),
+    ]);
+
+    if (bookingsCount > 0 || reviewsCount > 0) {
+      throw new Error(
+        `Cannot change role from TUTOR to ${data.role}. This tutor has ${bookingsCount} booking(s) and ${reviewsCount} review(s). Please delete or reassign them first.`
+      );
+    }
+
+    // Safe to delete tutor profile
     await prisma.tutorProfile.delete({
       where: { userId: userId },
     });

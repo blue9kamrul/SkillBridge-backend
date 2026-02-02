@@ -23,6 +23,7 @@ const getCurrentUser = async (userId: string) => {
           hourlyRate: true,
           experience: true,
           availability: true,
+          categories: true, // Add categories to the response
           reviews: {
             select: {
               rating: true,
