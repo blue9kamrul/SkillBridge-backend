@@ -30,13 +30,16 @@ const auth = (...roles: UserRole[]) => {
       console.log(`[AuthMiddleware] ${req.method} ${req.path}`);
       console.log(`[AuthMiddleware] Origin:`, req.headers.origin);
       console.log(`[AuthMiddleware] Cookie header:`, req.headers.cookie);
-      
+
       // get user session
       const session = await betterAuth.api.getSession({
         headers: req.headers as any,
       });
 
-      console.log(`[AuthMiddleware] Session result:`, session ? `valid (user: ${session.user.id})` : 'null/invalid');
+      console.log(
+        `[AuthMiddleware] Session result:`,
+        session ? `valid (user: ${session.user.id})` : "null/invalid",
+      );
 
       if (!session) {
         console.log(`[AuthMiddleware] 401 - No session found`);
