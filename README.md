@@ -6,13 +6,12 @@ A backend API for a tutoring platform that connects students with tutors. Built 
 
 - **Live API**: [https://skillbridge-backend-evdp.onrender.com](https://skillbridge-backend-evdp.onrender.com)
 - **Frontend Application**: [https://skillbridge-frontend-phi.vercel.app](https://skillbridge-frontend-phi.vercel.app)
-- **GitHub Repository**: [Repository URL]
 
 ## ✨ Features
 
 ### Student Features
 
-- Register and login (email/password & OAuth)
+- Register and login (email/password)
 - Browse tutors with filters - subject, category, price, rating, experience
 - View top-rated tutors
 - Book sessions instantly
@@ -148,7 +147,7 @@ erDiagram
    TRUSTED_ORIGINS="http://localhost:3000"
    PORT=5000
    NODE_ENV="development"
-   
+
    # For production (Render):
    # BETTER_AUTH_URL="https://skillbridge-backend-evdp.onrender.com"
    # TRUSTED_ORIGINS="https://skillbridge-frontend-phi.vercel.app"
@@ -212,7 +211,7 @@ erDiagram
 
 ### 1. Authentication & Authorization
 
-Used Better-Auth which handles everything - password hashing, sessions, OAuth. Built custom middleware on top for role-based access.
+Used Better-Auth which handles everything - password hashing, sessions. Built custom middleware on top for role-based access.
 
 ### 2. Booking Status Flow
 
