@@ -263,16 +263,16 @@ const createBooking = async (
     const bookingHour = data.startTime.getHours();
     const availabilityText = tutor.availability.toLowerCase();
     
-    // Simple validation: check if booking is on weekend when availability doesn't mention weekends
-    const isWeekend = bookingDay === 'Sat' || bookingDay === 'Sun';
+    // Simple validation: check if booking is on weekend (Friday/Saturday) when availability doesn't mention weekends
+    const isWeekend = bookingDay === 'Fri' || bookingDay === 'Sat';
     const hasWeekendAvailability = availabilityText.includes('weekend') || 
-                                   availabilityText.includes('saturday') || 
-                                   availabilityText.includes('sunday') ||
-                                   availabilityText.includes('sat') ||
-                                   availabilityText.includes('sun');
+                                   availabilityText.includes('friday') || 
+                                   availabilityText.includes('saturday') ||
+                                   availabilityText.includes('fri') ||
+                                   availabilityText.includes('sat');
     
     if (isWeekend && !hasWeekendAvailability) {
-      throw new Error(`This tutor is not available on weekends. Available slots: ${tutor.availability}`);
+      throw new Error(`This tutor is not available on weekends (Friday/Saturday). Available slots: ${tutor.availability}`);
     }
     
     // Check if booking is during typical off hours (before 6 AM or after 10 PM)

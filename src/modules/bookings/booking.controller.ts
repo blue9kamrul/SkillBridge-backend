@@ -251,6 +251,27 @@ const getTutorBookings = async (
   }
 };
 
+// Get bookings by tutor ID (public route for viewing tutor's booked slots)
+const getBookingsByTutorId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { tutorId } = req.params;
+    
+    const bookings = await bookingService.getBookingsByTutorId(tutorId);
+    
+    res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const BookingController = {
   getAllBookings,
   getBookingById,
@@ -258,4 +279,5 @@ export const BookingController = {
   updateBookingStatus,
   deleteBooking,
   getTutorBookings,
+  getBookingsByTutorId,
 };

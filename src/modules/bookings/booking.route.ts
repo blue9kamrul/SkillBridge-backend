@@ -13,6 +13,9 @@ router.post("/", auth(UserRole.STUDENT), BookingController.createBooking);
 router.get("/", auth(), BookingController.getAllBookings);
 router.get("/:id", auth(), BookingController.getBookingById);
 
+// Get bookings for a specific tutor by tutor ID (public route for viewing tutor availability)
+router.get("/tutor/:tutorId", BookingController.getBookingsByTutorId);
+
 // Tutor-specific bookings
 router.get("/tutor", auth(UserRole.TUTOR), BookingController.getTutorBookings);
 
