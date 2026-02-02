@@ -36,15 +36,15 @@ export const auth = betterAuth({
   session: {
     cookie: {
       name: "__Secure-better-auth.session_token",
-      sameSite: "none",
+      sameSite: "none" as const,
       path: "/",
       httpOnly: true,
       secure: true,
-      domain: process.env.NODE_ENV === "production" ? undefined : undefined,
+      // Don't set domain - let it default to the current domain
     },
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
-  } as unknown as any,
+  },
   user: {
     additionalFields: {
       role: {
